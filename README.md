@@ -2624,5 +2624,6 @@ setDownloadAudioMessageSwitch()在初始化之后，启动语音之前调用;若
 |6|色情|
 |7|其他|
 
-
+### 备注：
+实际Demo点击此处下载->[Youme IM Demo for Cocos2d Lua](http://dl2.youme.im/release/YIM_cocos_lua.zip)
 
