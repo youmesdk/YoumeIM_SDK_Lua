@@ -146,10 +146,9 @@
 -  如果打包或生成APK时需要混淆，则需要在`proguard.cfg`文件中添加如下代码：
 
     ``` shell
-    -keep class com.youme.**
-    -keep class com.youme.**
-    -keep class com.iflytek.**
-    -keepattributes Signature
+     -keep class com.youme.** {*;}
+     -keep class com.iflytek.**
+     -keepattributes Signature
     ```
 
 ### iOS
