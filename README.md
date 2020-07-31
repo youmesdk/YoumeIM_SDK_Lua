@@ -1,5 +1,7 @@
 # IM SDK for Cocos2d lua 使用指南
 
+## IM SDK 常见问题->[IM FAQ详解](https://github.com/youmesdk/wiki/blob/master/IMFAQ.md)
+
 ## 导入IM SDK
 ### Android
 - 将`yim`复制到Cocos2d-x开发工具生成的游戏目录根目录下。
