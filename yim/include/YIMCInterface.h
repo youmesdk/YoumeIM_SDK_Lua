@@ -22,6 +22,8 @@ extern "C"
 	YOUMEDLL_API int IM_Init(const XCHAR* appKey, const XCHAR* appSecurity);
 	YOUMEDLL_API void IM_Uninit();
     
+	//设置消息已读未读回调接口开关
+	YOUMEDLL_API void IM_UpdateReadStatusCallbackFlag(bool flag);
 	//登陆，登出
 	YOUMEDLL_API int IM_Login(const XCHAR* userID, const XCHAR* password, const XCHAR* token);
 	YOUMEDLL_API int IM_Logout();
@@ -32,8 +34,6 @@ extern "C"
     
 	//发送文件接口
 	YOUMEDLL_API int IM_SendFile(const XCHAR* receiverID, YIMChatType chatType, const XCHAR* filePath, const XCHAR* extraParam, YIMFileType fileType, XUINT64* requestID);
-
-
 	YOUMEDLL_API int IM_SendAudioMessage(const XCHAR* receiverID, YIMChatType chatType, XUINT64* requestID);
     //不会转文字，直接发送的音频
 	YOUMEDLL_API int IM_SendOnlyAudioMessage(const XCHAR* receiverID, YIMChatType chatType, XUINT64* requestID);
@@ -62,6 +62,9 @@ extern "C"
 
     // 设置指定发送用户发送的所有消息是否已读
     YOUMEDLL_API int IM_SetAllMessageRead(const XCHAR* userID, bool read);
+
+	// 确认指定发送用户发送的消息为已读
+	YOUMEDLL_API int IM_SendMessageReadStatus(const XCHAR* userID, int chatType, XUINT64 messageID);
     
     //设置语音消息为已播放,true-已播放，false-未播放
     YOUMEDLL_API int IM_SetVoiceMsgPlayed(XUINT64 messageID, bool played);
@@ -94,6 +97,8 @@ extern "C"
 
 	//设置模式0 正式环境 1开发环境 2 测试环境 3 商务环境。 默认正式环境。所以客户不需要调用这个接口
 	YOUMEDLL_API void IM_SetMode(int mode);
+
+	YOUMEDLL_API void IM_SetAppId(int appId);
     YOUMEDLL_API void IM_SetLogLevel(int iLogLevel, int iConsoleLogLevel);
 
     
@@ -157,6 +162,9 @@ extern "C"
     
     //消息传输类型开关
     YOUMEDLL_API int IM_SwitchMsgTransType(YIMMsgTransType transType);
+
+	//设置短连接模式
+	YOUMEDLL_API int IM_SetShortConnectionMode();
 
 	// 获取当前地理位置
 	YOUMEDLL_API int IM_GetCurrentLocation();

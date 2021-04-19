@@ -73,19 +73,6 @@
 @property(nonatomic) NSInteger maxSentenceSilence;
 
 /**
- * @brief 定制模型id,可选。如您通过POP API创建定制模型，通过本接口设置id。
- * @note 默认为null
- */
-@property(nonatomic) NSString *customizationId;
-
-/**
- * @brief 定制泛热词id,可选。如您通过POP API创建定制泛热词，通过本接口设置id。
- * @note 默认为null
- */
-@property(nonatomic) NSString *vocabularyId;
-
-
-/**
  * @brief 用户自定义字段值
  * @note ，可选
  */

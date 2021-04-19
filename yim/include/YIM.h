@@ -16,7 +16,6 @@
     #define YOUMEDLL_API __attribute__ ((visibility("default")))
 #endif
 
-
 /************************************************************************/
 /*								错误码									*/
 /************************************************************************/
@@ -127,6 +126,7 @@ enum YIMErrorcode
 	YIMErrorcode_PTT_StartPlayFailed = 2028,		// 启动播放失败
 	YIMErrorcode_PTT_StopPlayFailed = 2029,			// 停止播放失败
 	YIMErrorcode_PTT_RecognizeFailed = 2030,		// 识别失败
+	YIMErrorcode_PTT_ShortConnectionMode = 2031,				// 短连接模式不支持发送
 
 	YIMErrorcode_Fail = 10000
 };
@@ -163,8 +163,8 @@ public:
 	* @param errorcode：错误码
 	* @param userID：用户ID
 	*/
-	virtual void OnLogin(YIMErrorcode errorcode, const XString& userID) {}
-	
+	virtual void OnLogin(YIMErrorcode errorcode, const XCHAR * userID) {}
+
 	/*
 	* 功能：登出回调
 	* @param errorcode：错误码
@@ -224,14 +224,15 @@ public:
 	* @param chatRoomID：房间ID
 	* @param errorcode：错误码
 	*/
-	virtual void OnJoinChatRoom(YIMErrorcode errorcode, const XString& chatRoomID) {}
-	
+	virtual void OnJoinChatRoom(YIMErrorcode errorcode, const XCHAR * chatRoomID) {}
+
+
 	/*
 	* 功能：离开频道回调
 	* @param chatRoomID：房间ID
 	* @param errorcode：错误码
 	*/
-	virtual void OnLeaveChatRoom(YIMErrorcode errorcode, const XString& chatRoomID) {}
+	virtual void OnLeaveChatRoom(YIMErrorcode errorcode, const XCHAR * chatRoomID) {}
 
 	/*
 	* 功能：离开所有已加入房间
@@ -244,14 +245,14 @@ public:
 	* @param chatRoomID：房间ID
 	* @param userID：用户ID
 	*/
-	virtual void OnUserJoinChatRoom(const XString& chatRoomID, const XString& userID)  {}
+	virtual void OnUserJoinChatRoom(const XCHAR * chatRoomID, const XCHAR * userID)  {}
 
 	/*
 	* 功能：其他用户退出频道通知
 	* @param chatRoomID：房间ID
 	* @param userID：用户ID
 	*/
-	virtual void OnUserLeaveChatRoom(const XString& chatRoomID, const XString& userID) {}
+	virtual void OnUserLeaveChatRoom(const XCHAR * chatRoomID, const XCHAR * userID) {}
 
 	/*
 	* 功能：获取房间成员数量回调
@@ -259,7 +260,7 @@ public:
 	* @param chatRoomID：房间ID
 	* @param count：成员数量
 	*/
-	virtual void OnGetRoomMemberCount(YIMErrorcode errorcode, const XString& chatRoomID, unsigned int count){}
+	virtual void OnGetRoomMemberCount(YIMErrorcode errorcode, const XCHAR * chatRoomID, unsigned int count){}
 };
 
 
@@ -352,7 +353,7 @@ public:
 	* @param userID 用户ID
 	* @param distance 距离（米）
 	*/
-	virtual void OnGetDistance(YIMErrorcode errorcode, const XString& userID, unsigned int distance){}
+	virtual void OnGetDistance(YIMErrorcode errorcode, const XCHAR* userID, unsigned int distance){}
 };
 
 class YIMLocationManager
@@ -523,6 +524,8 @@ class IYIMMessage
 {
 public:
 	virtual ~IYIMMessage();
+    //消息ID
+    virtual XUINT64 GetID() = 0;
 	//消息ID
 	virtual XUINT64 GetMessageID() = 0;
 	//聊天类型
@@ -1004,7 +1007,7 @@ public:
 	* @param reasonType：禁言原因
 	* @param forbidEndTime：禁言结束时间
 	*/
-	virtual void OnSendMessageStatus(XUINT64 requestID, YIMErrorcode errorcode, unsigned int sendTime, bool isForbidRoom, int reasonType, XUINT64 forbidEndTime) {}
+	virtual void OnSendMessageStatus(XUINT64 requestID, YIMErrorcode errorcode, unsigned int sendTime, bool isForbidRoom, int reasonType, XUINT64 forbidEndTime, XUINT64 messageID) {}
 
 	/*
 	* 功能：停止语音回调（发送端停止语音，发送语音消息之前，发送端可在此时显示消息）
@@ -1014,8 +1017,7 @@ public:
 	* @param audioPath：语音文件路径
 	* @param audioTime：语音时长（单位：秒）
 	*/
-    virtual void OnStartSendAudioMessage(XUINT64 requestID, YIMErrorcode errorcode, const XString& text, const XString& audioPath, unsigned int audioTime) {}
-
+	virtual void OnStartSendAudioMessage(XUINT64 requestID, YIMErrorcode errorcode, const XCHAR * text, const XCHAR * audioPath, unsigned int audioTime) {}
 	/*
 	* 功能：发送语音消息回调
 	* @param requestID：请求ID（与SendAudioMessage输出参数requestID一致）
@@ -1028,8 +1030,8 @@ public:
 	* @param reasonType：禁言原因
 	* @param forbidEndTime：禁言结束时间
 	*/
-	virtual void OnSendAudioMessageStatus(XUINT64 requestID, YIMErrorcode errorcode, const XString& text, const XString& audioPath, unsigned int audioTime, unsigned int sendTime, bool isForbidRoom,  int reasonType, XUINT64 forbidEndTime) {}
-	
+	virtual void OnSendAudioMessageStatus(XUINT64 requestID, YIMErrorcode errorcode, const XCHAR * text, const XCHAR * audioPath, unsigned int audioTime, unsigned int sendTime, bool isForbidRoom,  int reasonType, XUINT64 forbidEndTime,XUINT64 messageID) {}
+
 	/*
 	* 功能：接收消息回调
 	* @param message：消息
@@ -1043,7 +1045,7 @@ public:
 	* @param remain：剩余条数
 	* @param messageList：消息列表
 	*/
-	virtual void OnQueryHistoryMessage(YIMErrorcode errorcode, const XString& targetID, int remain, std::list<std::shared_ptr<IYIMMessage> > messageList) {}
+	virtual void OnQueryHistoryMessage(YIMErrorcode errorcode, const XCHAR* targetID, int remain, std::list<std::shared_ptr<IYIMMessage> > messageList) {}
 	
 	/*
 	* 功能：从服务器查询房间历史消息回调（每次最多30条）
@@ -1052,7 +1054,7 @@ public:
 	* @param remain 剩余消息数量
 	* @param messageList 消息列表
 	*/
-	virtual void OnQueryRoomHistoryMessageFromServer(YIMErrorcode errorcode, const XString& roomID, int remain, std::list<std::shared_ptr<IYIMMessage> >& messageList){};
+	virtual void OnQueryRoomHistoryMessageFromServer(YIMErrorcode errorcode, const XCHAR* roomID, int remain, std::list<std::shared_ptr<IYIMMessage> >& messageList){};
 
 	/*
 	* 功能：只录音语音结束回调（只录音接口StartAudioSpeech和StopAudioSpeech）
@@ -1066,7 +1068,7 @@ public:
 	* @param errorcode：错误码
 	* @param messageList：消息列表
 	*/
-	virtual void OnReceiveMessageNotify(YIMChatType chatType,  const XString&  targetID) {}
+	virtual void OnReceiveMessageNotify(YIMChatType chatType,  const XCHAR*  targetID) {}
 
 	/*
 	* 功能：文本翻译回调
@@ -1076,7 +1078,7 @@ public:
 	* @param srcLangCode：源语言编码
 	* @param destLangCode：目标语言编码
 	*/
-	virtual void OnTranslateTextComplete(YIMErrorcode errorcode, unsigned int requestID, const XString& text, LanguageCode srcLangCode, LanguageCode destLangCode) {}
+	virtual void OnTranslateTextComplete(YIMErrorcode errorcode, unsigned int requestID, const XCHAR* text, LanguageCode srcLangCode, LanguageCode destLangCode) {}
 	
 	/*
 	* 功能：举报处理结果通知
@@ -1084,7 +1086,7 @@ public:
 	* @param userID：用户ID
 	* @param accusationTime：举报时间戳
 	*/
-	virtual void OnAccusationResultNotify(AccusationDealResult result, const XString& userID, unsigned int accusationTime) {}
+	virtual void OnAccusationResultNotify(AccusationDealResult result, const XCHAR* userID, unsigned int accusationTime) {}
     
 	/*
 	* 功能：获取禁言回调
@@ -1099,14 +1101,14 @@ public:
 	* @param errorcode：错误码
 	* @param text：语音识别结果
 	*/
-	virtual void OnGetRecognizeSpeechText(XUINT64 requestID, YIMErrorcode errorcode, const XString& text) {}	
+	virtual void OnGetRecognizeSpeechText(XUINT64 requestID, YIMErrorcode errorcode, const XCHAR* text) {}	
 	/*
 	* 功能：屏蔽/解除屏蔽用户消息回调
 	* @param errorcode：错误码
 	* @param userID
 	* @param block true-屏蔽 false-解除屏蔽
 	*/
-	virtual void OnBlockUser(YIMErrorcode errorcode, const XString& userID, bool block) {}
+	virtual void OnBlockUser(YIMErrorcode errorcode, const XCHAR* userID, bool block) {}
 
 	/*
 	* 功能：解除所有已屏蔽用户回调
@@ -1126,6 +1128,13 @@ public:
 	* @param volume：音量值(0到1)
 	*/
 	virtual void OnRecordVolumeChange(float volume) {}
+
+	/*
+	* 功能：上传文件显示进度回调
+	* @param requestID 消息序列号
+	* @param percent 当前上传进度
+	*/
+	virtual void OnUploadProgress(XUINT64 requestID, float percent) {}
 };
 
 //下载回调
@@ -1138,15 +1147,27 @@ public:
 	* @param msg 消息
 	* @param savePath 保存路径
 	*/
-    virtual void OnDownload( YIMErrorcode errorcode, std::shared_ptr<IYIMMessage> msg, const XString& savePath ){}
-    
+	virtual void OnDownload( YIMErrorcode errorcode, std::shared_ptr<IYIMMessage> msg, const XCHAR * savePath ){}
+
 	/*
 	* 功能：下载回调（根据messageID下载）
 	* @param errorcode：错误码
 	* @param strFromUrl URL
 	* @param savePath 保存路径
 	*/
-    virtual void OnDownloadByUrl( YIMErrorcode errorcode, const XString& strFromUrl, const XString& savePath, int iAudioTime ){}
+    virtual void OnDownloadByUrl( YIMErrorcode errorcode, const XCHAR* strFromUrl, const XCHAR* savePath, int iAudioTime ){}
+};
+
+class IYIMUpdateReadStatusCallback
+{
+public:
+  /*
+    * 功能：接收端消息已读，更新发送端消息显示状态
+    * @param recvId 接收端用户Id
+    * @param chatType 聊天类型
+    * @param msgSerial 最新一条已读消息的消息Id
+    */
+	virtual void OnUpdateReadStatus(const XCHAR* recvId, int chatType, XUINT64 msgSerial) {}
 };
 
 //语音识别语言
@@ -1213,7 +1234,7 @@ public:
 	* @return 错误码
 	*/
 	virtual YIMErrorcode SendFile(const XCHAR* receiverID, YIMChatType chatType, const XCHAR* filePath, XUINT64* requestID, const XCHAR* extraParam, YIMFileType fileType = FileType_Other) = 0;
-
+	
 	/*
 	* 功能：发送语音消息（带语音识别）
 	* @param receiverID：接收方ID
@@ -1380,6 +1401,11 @@ public:
 	virtual YIMErrorcode GetNewMessage(const std::vector<XString>& vecRoomIDs) = 0;
 
 	/*
+	* 功能：客户端上线，从服务器同步已发送消息的已读状态
+	*/
+	virtual void SynMsgReadStatus() = 0;
+
+	/*
 	* 功能：是否保存房间消息到本地历史记录
 	* @param vecRoomIDs：房间ID列表
 	* @param save：是否保存（默认不保存）
@@ -1405,6 +1431,9 @@ public:
 
     // 设置某用户的所有消息为已读
     virtual YIMErrorcode SetAllMessageRead(const XCHAR* userID, bool read) = 0;
+
+	// 设置消息已读
+	virtual YIMErrorcode SendMessageReadStatus(const XCHAR* userID, int chatType, XUINT64 messageID) = 0;
     
     // 设置语音消息为已播放,true-已播放，false-未播放
     virtual YIMErrorcode SetVoiceMsgPlayed(XUINT64 messageID, bool played) = 0;
@@ -1526,7 +1555,7 @@ public:
 	* @param noticeID：公告ID
 	* @param channelID：频道（房间）ID
 	*/
-	virtual void OnCancelNotice(XUINT64 noticeID, const XString& channelID)  {}
+	virtual void OnCancelNotice(XUINT64 noticeID, const XCHAR* channelID)  {}
 };
 
 
@@ -1580,7 +1609,7 @@ public:
 	* @param userID：用户ID
 	* @param userInfo：用户信息（JSON格式 SetUserInfo接口所设置）
 	*/
-	virtual void OnGetUserInfo(YIMErrorcode errorcode, const XString& userID, const XString&  userInfo) {}
+	virtual void OnGetUserInfo(YIMErrorcode errorcode, const XCHAR* userID, const XCHAR*  userInfo) {}
 	
 	/*
 	* 功能：查询用户状态回调
@@ -1588,7 +1617,7 @@ public:
 	* @param userID：用户ID
 	* @param status：状态
 	*/
-	virtual void OnQueryUserStatus(YIMErrorcode errorcode, const XString&  userID, YIMUserStatus status){}
+	virtual void OnQueryUserStatus(YIMErrorcode errorcode, const XCHAR* userID, YIMUserStatus status){}
 };
 
 
@@ -1614,7 +1643,7 @@ public:
 	* @param errorcode：错误码
 	* @param path： 播放文件路径
 	*/
-	virtual void OnPlayCompletion(YIMErrorcode errorcode, const XString& path) {}
+	virtual void OnPlayCompletion(YIMErrorcode errorcode, const XCHAR * path) {}
 
 	/*
 	* 功能：获取麦克风状态回调
@@ -1771,13 +1800,13 @@ public:
      * @param photoUrl：图片下载路径
      * @param errorcode：错误码
      */
-    virtual void OnSetPhotoUrl(YIMErrorcode errorcode, const XString &photoUrl) {}
+    virtual void OnSetPhotoUrl(YIMErrorcode errorcode, const XCHAR* photoUrl) {}
 
 	/*
 	* 功能：用户信息变更通知
 	* @param users：用户ID
 	*/
-	virtual void OnUserInfoChangeNotify(const XString& userID){}
+	virtual void OnUserInfoChangeNotify(const XCHAR* userID){}
 };
 
 
@@ -1905,7 +1934,7 @@ public:
 	* @param errorcode：错误码
 	* @param userID：用户ID
 	*/
-	virtual void OnRequestAddFriend(YIMErrorcode errorcode, const XString& userID){}
+	virtual void OnRequestAddFriend(YIMErrorcode errorcode, const XCHAR* userID){}
 
 	/*
 	* 功能：被邀请添加好友通知（需要验证）
@@ -1913,14 +1942,14 @@ public:
 	* @param comments：备注或验证信息
 	* commonts：显示用户信息可以根据userID查询
 	*/
-	virtual void OnBeRequestAddFriendNotify(const XString& userID, const XString& comments,XUINT64 reqID){}
+	virtual void OnBeRequestAddFriendNotify(const XCHAR* userID, const XCHAR* comments,XUINT64 reqID){}
 
 	/*
 	* 功能：被添加为好友通知（不需要验证）
 	* @param userID：用户ID
 	* @param comments：备注或验证信息
 	*/
-	virtual void OnBeAddFriendNotify(const XString& userID, const XString& comments){}
+	virtual void OnBeAddFriendNotify(const XCHAR* userID, const XCHAR* comments){}
 	
 	/*
 	* 功能：处理被请求添加好友回调
@@ -1929,7 +1958,7 @@ public:
 	* @param comments：备注或验证信息
 	* @param dealResult：处理结果	0：同意	1：拒绝
 	*/
-	virtual void OnDealBeRequestAddFriend(YIMErrorcode errorcode, const XString& userID, const XString& comments, int dealResult){}
+	virtual void OnDealBeRequestAddFriend(YIMErrorcode errorcode, const XCHAR* userID, const XCHAR* comments, int dealResult){}
 
 	/*
 	* 功能：请求添加好友结果通知(需要好友验证，待被请求方处理后回调)
@@ -1937,20 +1966,20 @@ public:
 	* @param comments：备注或验证信息
 	* @param dealResult：处理结果	0：同意	1：拒绝
 	*/
-	virtual void OnRequestAddFriendResultNotify(const XString& userID, const XString& comments, int dealResult){}
+	virtual void OnRequestAddFriendResultNotify(const XCHAR* userID, const XCHAR* comments, int dealResult){}
 
 	/*
 	* 功能：删除好友结果回调
 	* @param errorcode：错误码
 	* @param userID：用户ID
 	*/
-	virtual void OnDeleteFriend(YIMErrorcode errorcode, const XString& userID){}
+	virtual void OnDeleteFriend(YIMErrorcode errorcode, const XCHAR* userID){}
 
 	/*
 	* 功能：被好友删除通知
 	* @param userID：用户ID
 	*/
-	virtual void OnBeDeleteFriendNotify(const XString& userID){}
+	virtual void OnBeDeleteFriendNotify(const XCHAR* userID){}
 
 	/*
 	* 功能：拉黑或解除拉黑好友回调
@@ -1958,7 +1987,7 @@ public:
 	* @param type：0：拉黑	1：解除拉黑
 	* @param userID：用户ID
 	*/
-	virtual void OnBlackFriend(YIMErrorcode errorcode, int type, const XString& userID){}
+	virtual void OnBlackFriend(YIMErrorcode errorcode, int type, const XCHAR* userID){}
 
 	/*
 	* 功能：查询我的好友回调
@@ -2004,6 +2033,8 @@ public:
 	static YIMErrorcode SetLoginAddress(const char* ip, unsigned short port);
 
     static void SetMode(int mode);
+
+	static void SetAppId(int appId);
 	
 	/*
 	* 功能：设置语音缓存目录
@@ -2032,6 +2063,8 @@ public:
     virtual void SetChatRoomCallback(IYIMChatRoomCallback* pCallback) = 0;
 	//设置下载回调
 	virtual void SetDownloadCallback(IYIMDownloadCallback* pCallback) =0;
+	//设置消息已读回调
+	virtual void SetUpdateReadStatusCallback(IYIMUpdateReadStatusCallback* pCallback) =0;
 	//设置联系人回调
 	virtual void SetContactCallback(IYIMContactCallback* pCallback) = 0;
 	//设置语音播放回调
@@ -2079,6 +2112,12 @@ public:
 	* @return 错误码
 	*/
 	virtual YIMErrorcode GetRecentContacts() = 0;
+
+	/*
+	* 功能：设置短连接，仅支持语音识别
+	* @return 错误码
+	*/
+	virtual YIMErrorcode SetShortConnectionMode() = 0;
 
 	/*
 	* 功能：设置用户信息

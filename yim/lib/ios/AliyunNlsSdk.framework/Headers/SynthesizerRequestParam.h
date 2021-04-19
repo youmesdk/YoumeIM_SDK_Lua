@@ -54,12 +54,6 @@
 @property(nonatomic) NSString *text;
 
 /**
- * @brief 长音频合成接口。使用本接口合成的数据没有单次请求300个字符的限制。
- * @note 必须
- */
-@property(nonatomic) NSString *longText;
-
-/**
  * @brief 选择合成语音发音人，xiaoyun/xiaogang
  * @note 默认是'xiaoyun'
  */

@@ -62,36 +62,6 @@
 @property(nonatomic) Boolean enableInverseTextNormalization;
 
 /**
- * @brief 是否启动云端静音检测(vad)
- * @note 默认是False
- */
-@property(nonatomic) Boolean enableVoiceDetection;
-
-/**
- * @brief 设置前置静音检测时间
- * @note 可选，单位是毫秒，超出后服务端将会发送RecognitionCompleted事件，结束本次识别，需要先设置enable_voice_detection为true
- */
-@property(nonatomic) NSInteger maxStartSilence;
-
-/**
- * @brief 设置后置静音检测时间
- * @note 可选，单位是毫秒，超出后服务端将会发送RecognitionCompleted事件，结束本次识别，需要先设置enable_voice_detection为true
- */
-@property(nonatomic) NSInteger maxEndSilence;
-
-/**
- * @brief 定制模型id,可选。如您通过POP API创建定制模型，通过本接口设置id。
- * @note 默认为null
- */
-@property(nonatomic) NSString *customizationId;
-
-/**
- * @brief 定制泛热词id,可选。如您通过POP API创建定制泛热词，通过本接口设置id。
- * @note 默认为null
- */
-@property(nonatomic) NSString *vocabularyId;
-
-/**
  * @brief 用户自定义字段值
  * @note ，可选
  */

@@ -82,7 +82,4 @@
  * @brief 启动SynthesizerRequest
  */
 -(void)start;
-
--(void)cancel;
-
 @end

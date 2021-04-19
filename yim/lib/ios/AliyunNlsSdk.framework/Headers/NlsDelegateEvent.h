@@ -40,14 +40,3 @@ typedef enum{
 
 }NlsLogLevel;
 
-//状态 init -> start ->connected ->stop ->closed
-typedef enum {
-    w_init = 0,
-    w_start,
-    w_connected,
-    w_stop,
-    w_closed,
-    w_failed
-}w_status;
-
-
